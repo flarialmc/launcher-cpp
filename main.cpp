@@ -276,15 +276,21 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
     SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 
-    std::string folderPath = "Resources";
+    fs::path exePath(fs::current_path());
+    std::string exeDirectory = exePath.string();
+    std::string folderPath = exeDirectory + "/Resources";
+
+    MessageBox(hwnd, folderPath.c_str(), "Error", MB_ICONERROR);
 
     if (!fs::exists(folderPath)) {
         fs::create_directory(folderPath);
     }
 
+    std::string logoPath = folderPath + "/logo.png";
 
-    const wchar_t* url = L"https://cdn.flarial.net/assets/logo.png";
-    HRESULT hr = URLDownloadToFileW(nullptr, url, L"Resources/logo.png", 0, nullptr);
+
+    std::string url = "https://cdn.flarial.net/assets/logo.png";
+    HRESULT hr = URLDownloadToFileA(nullptr, url.c_str(), logoPath.c_str(), 0, nullptr);
 
 
     hwnd = CreateWindowExW(0, L"Flarial Minimal", L"Flarial Minimal", WS_OVERLAPPED,
@@ -545,13 +551,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             if (wParam == MK_LBUTTON)
             {
-                const wchar_t* url = L"https://cdn.flarial.net/dll/latest.dll";
-                HRESULT hr = URLDownloadToFileW(nullptr, url, L"latest.dll", 0, nullptr);
-                if (FAILED(hr))
-                {
-                    MessageBoxW(hwnd, L"Failed to download the DLL.", L"Error", MB_ICONERROR);
-                    return 0;
-                }
 
                 wchar_t currentExePath[MAX_PATH];
                 GetModuleFileNameW(nullptr, currentExePath, MAX_PATH);
@@ -559,6 +558,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 fs::path exePath(currentExePath);
                 std::string exeDirectory = exePath.parent_path().string();
                 const wchar_t* latestDllPath = fs::path(exeDirectory).append("latest.dll").wstring().c_str();
+
+                const wchar_t* url = L"https://cdn.flarial.net/dll/latest.dll";
+
+                HRESULT hr = URLDownloadToFileW(nullptr, url, latestDllPath, 0, nullptr);
+                if (FAILED(hr))
+                {
+                    MessageBoxW(hwnd, L"Failed to download the DLL.", L"Error", MB_ICONERROR);
+                    return 0;
+                }
+
+
                 SetAccessControl(latestDllPath, L"S-1-15-2-1");
 
                 ShellExecuteW(hwnd, L"open", L"minecraft://", nullptr, nullptr, SW_SHOWNORMAL);
