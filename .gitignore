@@ -1,1 +1,3 @@
 .vs/
+cmake-build-minsizerel-visual-studio/
+.idea/

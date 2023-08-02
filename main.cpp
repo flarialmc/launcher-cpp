@@ -14,6 +14,7 @@
 
 namespace fs = std::filesystem;
 
+
 HWND hwnd;
 HFONT hFont;
 
