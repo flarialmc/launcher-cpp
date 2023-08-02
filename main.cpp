@@ -10,13 +10,7 @@
 #include <TlHelp32.h>
 #include <thread>
 
-#include "include/discord_rpc.h"
-#pragma comment(lib, "shlwapi.lib")
-#pragma comment(lib, "lib/discord-rpc.lib")
-#pragma comment(lib, "d2d1.lib")
-#pragma comment(lib, "Dwrite.lib")
-#pragma comment(lib, "windowscodecs.lib")
-#pragma comment(lib, "urlmon.lib")
+#include <discord_rpc.h>
 
 namespace fs = std::filesystem;
 
@@ -31,7 +25,6 @@ IDWriteFactory* pDWriteFactory = nullptr;
 bool isMouseOverButton = false;
 int windowWidth = 275;
 int windowHeight = 120;
-POINT dragStartPos = { 0 };
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void SetAccessControl(const wchar_t* ExecutableName, const wchar_t* AccessString);
@@ -279,8 +272,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     fs::path exePath(fs::current_path());
     std::string exeDirectory = exePath.string();
     std::string folderPath = exeDirectory + "/Resources";
-
-    MessageBox(hwnd, folderPath.c_str(), "Error", MB_ICONERROR);
 
     if (!fs::exists(folderPath)) {
         fs::create_directory(folderPath);
