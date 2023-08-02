@@ -1,3 +1,2 @@
-.vs/
-cmake-build-minsizerel-visual-studio/
-.idea/
+installer-cpp/cmake-build-minsizerel-visual-studio/
+minimal-cpp/cmake-build-minsizerel-visual-studio/
