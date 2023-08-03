@@ -63,13 +63,15 @@ void install() {
     RedrawWindow(hwnd, &rect, NULL, RDW_INVALIDATE | RDW_ERASE);
     elz::extractZip(zipPath, extractPath);
 
-    std::string allahPath = extractPath + "/Flarial.Launcher.exe";
-    ShellExecuteA(NULL, "open", extractPath.c_str(), NULL, NULL, SW_SHOWDEFAULT);
-    ShellExecuteA(NULL, "open", allahPath.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+    std::filesystem::remove(zipPath);
 
     status = L"Done! Closing..";
     std::cout << "Done" << std::endl;
     RedrawWindow(hwnd, &rect, NULL, RDW_INVALIDATE | RDW_ERASE);
+
+    std::string allahPath = extractPath + "/Flarial.Launcher.exe";
+    ShellExecuteA(NULL, "open", extractPath.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+    ShellExecuteA(NULL, "open", allahPath.c_str(), NULL, NULL, SW_SHOWDEFAULT);
 
     // Create Start Menu shortcut
     std::string shortcutPath;
