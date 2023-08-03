@@ -1,2 +1,2 @@
 #include <Windows.h>
-IDI_ICON1 ICON DISCARDABLE "icon1.ico"
+IDI_ICON1 ICON DISCARDABLE "logo.ico"
