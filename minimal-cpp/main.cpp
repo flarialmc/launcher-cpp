@@ -281,8 +281,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     std::string logoPath = folderPath + "/logo.png";
 
 
-    std::string url = "https://cdn.flarial.net/assets/logo.png";
-    HRESULT hr = URLDownloadToFileA(nullptr, url.c_str(), logoPath.c_str(), 0, nullptr);
+    std::string url = "https://cdn-c6f.pages.dev/assets/logo.png";
+    URLDownloadToFileA(nullptr, url.c_str(), logoPath.c_str(), 0, nullptr);
 
 
     hwnd = CreateWindowExW(0, L"Flarial Minimal", L"Flarial Minimal", WS_OVERLAPPED,
@@ -551,7 +551,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 std::string exeDirectory = exePath.parent_path().string();
                 const wchar_t* latestDllPath = fs::path(exeDirectory).append("latest.dll").wstring().c_str();
 
-                const wchar_t* url = L"https://cdn.flarial.net/dll/latest.dll";
+                const wchar_t* url = L"https://cdn-c6f.pages.dev/dll/latest.dll";
 
                 HRESULT hr = URLDownloadToFileW(nullptr, url, latestDllPath, 0, nullptr);
                 if (FAILED(hr))
