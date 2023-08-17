@@ -3,7 +3,7 @@ project(flarialinstaller)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_compile_options(/MT /MP)
+add_compile_options(/MP)
 
 add_executable(flarialinstaller WIN32 main.cpp)
 target_sources(flarialinstaller PRIVATE icon.rc)

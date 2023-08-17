@@ -3,8 +3,6 @@
 #include <dwrite.h>
 #include <wincodec.h>
 #include <iostream>
-#include <fstream>
-#include <windows.h>
 #include <shlobj.h>
 #include "elzip.hpp"
 
