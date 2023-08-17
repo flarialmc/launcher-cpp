@@ -543,6 +543,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (wParam == MK_LBUTTON)
             {
 
+                std::thread statusThread([&hwnd]() {
+
+
                 wchar_t currentExePath[MAX_PATH];
                 GetModuleFileNameW(nullptr, currentExePath, MAX_PATH);
 
@@ -567,8 +570,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
                 WaitForModules("Minecraft.Windows.exe", 160);
-                performInjection(GetProcessIdByName("Minecraft.Windows.exe"), fs::path(exeDirectory).append("latest.dll").wstring().c_str());
+                performInjection(GetProcessIdByName("Minecraft.Windows.exe"), fs::path(exeDirectory).append("latest.dll").string().c_str());
 
+                });
+
+                statusThread.detach();
             }
         }
         return 0;
