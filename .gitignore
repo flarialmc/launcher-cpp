@@ -1,5 +1,8 @@
 installer-cpp/cmake-build-minsizerel-visual-studio/
 minimal-cpp/cmake-build-minsizerel-visual-studio/
+minimal-cpp/cmake-build-release-visual-studio/
+minimal-cpp/cmake-build-debug/
+installer-cpp/cmake-build-release-visual-studio/
 minimal-cpp/.idea/
 installer-cpp/.idea/
 .idea/

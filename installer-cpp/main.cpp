@@ -27,7 +27,7 @@ void install() {
 
 
 
-    const std::string url = "https://cdn.flarial.net/launcher/latest.zip";
+    std::string url = "https://cdn.flarial.net/launcher/latest.zip";
     std::string zipPath;
     std::string extractPath;
 
@@ -47,6 +47,7 @@ void install() {
     RECT rect;
     GetClientRect(hwnd, &rect);
     RedrawWindow(hwnd, &rect, NULL, RDW_INVALIDATE | RDW_ERASE);
+
 
     std::cout << "Downlopading" << std::endl;
 
@@ -78,7 +79,7 @@ void install() {
     PWSTR appDataPath;
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &appDataPath))) {
         std::wstring wAppDataPath(appDataPath);
-        shortcutPath = std::string(wAppDataPath.begin(), wAppDataPath.end()) + "\\Microsoft\\Windows\\Start Menu\\Programs\\Flarial.Lnk";
+        shortcutPath = std::string(wAppDataPath.begin(), wAppDataPath.end()) + "\\Microsoft\\Windows\\Start Menu\\Flarial.Lnk";
         CoTaskMemFree(appDataPath);
     }
     if (!shortcutPath.empty()) {
@@ -103,7 +104,7 @@ void install() {
 
     if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &appDataPath))) {
         std::wstring wAppDataPath(appDataPath);
-        shortcutPath = std::string(wAppDataPath.begin(), wAppDataPath.end()) + "\\Microsoft\\Windows\\Start Menu\\Programs\\Flarial Minimal.Lnk";
+        shortcutPath = std::string(wAppDataPath.begin(), wAppDataPath.end()) + "\\Microsoft\\Windows\\Start Menu\\Flarial Minimal.Lnk";
         CoTaskMemFree(appDataPath);
     }
     if (!shortcutPath.empty()) {

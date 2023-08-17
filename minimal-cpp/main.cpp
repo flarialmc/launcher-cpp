@@ -28,7 +28,6 @@ int windowWidth = 275;
 int windowHeight = 120;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-void SetAccessControl(const wchar_t* ExecutableName, const wchar_t* AccessString);
 void WaitForModules(const std::string& processName, int moduleCount);
 void updateStatus();
 static int64_t eptime = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -98,7 +97,7 @@ void WaitForModules(const std::string& processName, int moduleCount) {
     CloseHandle(hProc);
 }
 
-int performInjection(DWORD procId, const wchar_t* dllPath)
+int performInjection(DWORD procId, std::string dllPath)
 {
     HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, 0, procId);
 
@@ -106,7 +105,7 @@ int performInjection(DWORD procId, const wchar_t* dllPath)
     {
         void* loc = VirtualAllocEx(hProc, 0, MAX_PATH, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
-        WriteProcessMemory(hProc, loc, dllPath, wcslen(dllPath) * 2 + 2, 0); // length * 2 for bytes + 2 for end string
+        WriteProcessMemory(hProc, loc, dllPath.c_str(), dllPath.length() * 2 + 2, 0); // length * 2 for bytes + 2 for end string
 
         HANDLE hThread = CreateRemoteThread(hProc, 0, 0, (LPTHREAD_START_ROUTINE)LoadLibraryW, loc, 0, 0); // using LoadLibraryW instead of LoadLibraryA to allow wchar
 
@@ -122,7 +121,7 @@ int performInjection(DWORD procId, const wchar_t* dllPath)
     return 0;
 }
 
-void SetAccessControl(const wchar_t* ExecutableName, const wchar_t* AccessString)
+void SetAccessControl(std::string ExecutableName, const wchar_t* AccessString)
 {
     PSECURITY_DESCRIPTOR SecurityDescriptor = nullptr;
     EXPLICIT_ACCESSW ExplicitAccess = { 0 };
@@ -134,8 +133,8 @@ void SetAccessControl(const wchar_t* ExecutableName, const wchar_t* AccessString
     PSID SecurityIdentifier = nullptr;
 
     if (
-        GetNamedSecurityInfoW(
-            ExecutableName,
+        GetNamedSecurityInfoA(
+            ExecutableName.c_str(),
             SE_FILE_OBJECT,
             DACL_SECURITY_INFORMATION,
             nullptr,
@@ -165,8 +164,8 @@ void SetAccessControl(const wchar_t* ExecutableName, const wchar_t* AccessString
                 ) == ERROR_SUCCESS
                 )
             {
-                SetNamedSecurityInfoW(
-                    const_cast<wchar_t*>(ExecutableName),
+                SetNamedSecurityInfoA(
+                        (char*)ExecutableName.c_str(),
                     SE_FILE_OBJECT,
                     SecurityInfo,
                     nullptr,
@@ -549,11 +548,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
                 fs::path exePath(currentExePath);
                 std::string exeDirectory = exePath.parent_path().string();
-                const wchar_t* latestDllPath = fs::path(exeDirectory).append("latest.dll").wstring().c_str();
+                std::string latestDllPath = fs::path(exeDirectory).append(L"latest.dll").string();
 
-                const wchar_t* url = L"https://cdn-c6f.pages.dev/dll/latest.dll";
+                std::string url = "https://cdn-c6f.pages.dev/dll/latest.dll";
 
-                HRESULT hr = URLDownloadToFileW(nullptr, url, latestDllPath, 0, nullptr);
+                HRESULT hr = URLDownloadToFileA(nullptr, url.c_str(), latestDllPath.c_str(), 0, nullptr);
                 if (FAILED(hr))
                 {
                     MessageBoxW(hwnd, L"Failed to download the DLL.", L"Error", MB_ICONERROR);
