@@ -98,16 +98,19 @@ void WaitForModules(const std::string& processName, int moduleCount) {
 }
 
 int performInjection(DWORD procId, std::string dllPath)
+
 {
     HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, 0, procId);
+
+
 
     if (hProc && hProc != INVALID_HANDLE_VALUE)
     {
         void* loc = VirtualAllocEx(hProc, 0, MAX_PATH, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
-        WriteProcessMemory(hProc, loc, dllPath.c_str(), dllPath.length() * 2 + 2, 0); // length * 2 for bytes + 2 for end string
+        WriteProcessMemory(hProc, loc, dllPath.c_str(), dllPath.length() + 1, 0); // length * 2 for bytes + 2 for end string
 
-        HANDLE hThread = CreateRemoteThread(hProc, 0, 0, (LPTHREAD_START_ROUTINE)LoadLibraryW, loc, 0, 0); // using LoadLibraryW instead of LoadLibraryA to allow wchar
+        HANDLE hThread = CreateRemoteThread(hProc, 0, 0, (LPTHREAD_START_ROUTINE)LoadLibraryA, loc, 0, 0); // using LoadLibraryW instead of LoadLibraryA to allow wchar
 
         if (hThread)
         {
@@ -570,7 +573,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
                 WaitForModules("Minecraft.Windows.exe", 160);
-                performInjection(GetProcessIdByName("Minecraft.Windows.exe"), fs::path(exeDirectory).append("latest.dll").string().c_str());
+                performInjection(GetProcessIdByName("Minecraft.Windows.exe"), fs::path(exeDirectory).append("latest.dll").string());
 
                 });
 
