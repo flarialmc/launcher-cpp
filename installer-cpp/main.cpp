@@ -18,10 +18,65 @@ IDWriteFactory* pDWriteFactory = nullptr;
 
 int windowWidth = 275;
 int windowHeight = 120;
-
-const wchar_t *status;
+int progress = 0;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+class MyBindStatusCallback : public IBindStatusCallback {
+public:
+    static inline const wchar_t* status;
+    // Constructor
+    MyBindStatusCallback(HWND hwnd) : hwnd(hwnd) {}
+
+    // IUnknown methods (not fully implemented for brevity)
+    STDMETHODIMP QueryInterface(REFIID riid, void** ppvObject) {
+        if (riid == IID_IUnknown || riid == IID_IBindStatusCallback) {
+            *ppvObject = static_cast<IBindStatusCallback*>(this);
+            return S_OK;
+        }
+        return E_NOINTERFACE;
+    }
+
+    STDMETHODIMP_(ULONG) AddRef() { return 1; }
+    STDMETHODIMP_(ULONG) Release() { return 1; }
+
+    // IBindStatusCallback methods
+    STDMETHODIMP OnStartBinding(DWORD dwReserved, IBinding* pib) { return E_NOTIMPL; }
+    STDMETHODIMP GetPriority(LONG* pnPriority) { return E_NOTIMPL; }
+    STDMETHODIMP OnLowResource(DWORD reserved) { return E_NOTIMPL; }
+    STDMETHODIMP OnProgress(ULONG ulProgress, ULONG ulProgressMax, ULONG ulStatusCode, LPCWSTR szStatusText) {
+
+        if(ulProgressMax != 0) {
+
+            // Calculate download percentage
+            int progress = (ulProgress * 100) / ulProgressMax;
+
+            std::string str = "Downloading Files... This might take some time. " + std::to_string(progress) + "%";
+            std::wstring wstr(str.begin(), str.end());
+
+            // Update status text and redraw the window
+            status = wstr.c_str();
+            RECT rect;
+            GetClientRect(hwnd, &rect);
+            RedrawWindow(hwnd, &rect, NULL, RDW_INVALIDATE | RDW_ERASE);
+
+            // Print the download percentage
+            std::cout << "Download progress: " << progress << "%" << std::endl;
+
+        }
+
+        return S_OK;
+    }
+
+    STDMETHODIMP OnStopBinding(HRESULT hresult, LPCWSTR szError) { return E_NOTIMPL; }
+    STDMETHODIMP GetBindInfo(DWORD* grfBINDF, BINDINFO* pbindinfo) { return E_NOTIMPL; }
+    STDMETHODIMP OnDataAvailable(DWORD grfBSCF, DWORD dwSize, FORMATETC* pformatetc, STGMEDIUM* pstgmed) { return E_NOTIMPL; }
+    STDMETHODIMP OnObjectAvailable(REFIID riid, IUnknown* punk) { return E_NOTIMPL; }
+
+private:
+    HWND hwnd;
+};
+
 
 void install() {
 
@@ -31,9 +86,14 @@ void install() {
     std::string zipPath;
     std::string extractPath;
 
-    const char* expandedPath = std::getenv("APPDATA");
+    char* expandedPath = nullptr;
+    size_t requiredSize;
+    _dupenv_s(&expandedPath, &requiredSize, "APPDATA");
+
     zipPath = std::string(expandedPath) + "/Flarial/latest.zip";
     extractPath = std::string(expandedPath) + "/Flarial";
+
+    free(expandedPath);
 
     std::filesystem::path directoryPath = extractPath;
 
@@ -43,30 +103,52 @@ void install() {
     std::filesystem::create_directory(directoryPath);
 
     // Download the 7z file
-    status = L"Downloading Files... This might take some time.";
+    std::string str = "Downloading Files... This might take some time. " + std::to_string(progress) + "%";
+    std::wstring wstr(str.begin(), str.end());
+
+    MyBindStatusCallback::status = wstr.c_str();
+
     RECT rect;
     GetClientRect(hwnd, &rect);
-    RedrawWindow(hwnd, &rect, NULL, RDW_INVALIDATE | RDW_ERASE);
-
 
     std::cout << "Downlopading" << std::endl;
 
-    HRESULT hr = URLDownloadToFileA(NULL, url.c_str(), zipPath.c_str(), 0, NULL);
+    std::thread statusThread([]() {
+
+        while(true) {
+
+            RECT rect;
+            GetClientRect(hwnd, &rect);
+            RedrawWindow(hwnd, &rect, NULL, RDW_INVALIDATE | RDW_ERASE);
+            Sleep(1000);
+
+        }
+
+    });
+    statusThread.detach();
+
+    auto* pBindStatusCallback = new MyBindStatusCallback(GetDesktopWindow());
+
+    HRESULT hr = URLDownloadToFileA(NULL, url.c_str(), zipPath.c_str(), 0,
+                                    pBindStatusCallback);
+
+
+
     if (FAILED(hr)) {
-        status = L"Failed to download the files.";
+        MyBindStatusCallback::status = L"Failed to download the files.";
         RedrawWindow(hwnd, &rect, NULL, RDW_INVALIDATE | RDW_ERASE);
         std::cout << "fail" << std::endl;
         return;
     }
 
-    status = L"Extracting Zip Files";
+    MyBindStatusCallback::status = L"Extracting Zip Files";
     std::cout << "extracting" << std::endl;
     RedrawWindow(hwnd, &rect, NULL, RDW_INVALIDATE | RDW_ERASE);
     elz::extractZip(zipPath, extractPath);
 
     std::filesystem::remove(zipPath);
 
-    status = L"Done! Closing..";
+    MyBindStatusCallback::status = L"Done! Closing..";
     std::cout << "Done" << std::endl;
     RedrawWindow(hwnd, &rect, NULL, RDW_INVALIDATE | RDW_ERASE);
 
@@ -246,7 +328,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 
 
-        pRT->DrawText(status, wcsnlen_s(status, 200), pTextFormat, textRect, pBrush);
+        pRT->DrawText(MyBindStatusCallback::status, wcsnlen_s(MyBindStatusCallback::status, 200), pTextFormat, textRect, pBrush);
 
         pTextFormat->Release();
 
@@ -254,7 +336,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         ValidateRect(hwnd, NULL);
 
-        if(status == L"Done! Closing..") {
+        if(MyBindStatusCallback::status == L"Done! Closing..") {
             Sleep(1200);
             DestroyWindow(hwnd);
         }
