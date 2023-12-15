@@ -4,6 +4,8 @@
 #include <wincodec.h>
 #include <iostream>
 #include <shlobj.h>
+#include <Shlwapi.h>
+#include <codecvt>
 #include "elzip.hpp"
 
 HWND hwnd;
@@ -80,7 +82,7 @@ void install() {
 
 
 
-    std::string url = "https://cdn.flarial.net/launcher/latest.zip";
+    std::string url = "https://github.com/flarialmc/newcdn/releases/download/amazing/latest.zip";
     std::string zipPath;
     std::string extractPath;
 
@@ -89,7 +91,7 @@ void install() {
     _dupenv_s(&expandedPath, &requiredSize, "APPDATA");
 
     zipPath = std::string(expandedPath) + "/Flarial/latest.zip";
-    extractPath = std::string(expandedPath) + "/Flarial";
+    extractPath = std::string(expandedPath) + "\\Flarial";
 
     free(expandedPath);
 
@@ -150,69 +152,37 @@ void install() {
     std::cout << "Done" << std::endl;
     RedrawWindow(hwnd, &rect, NULL, RDW_INVALIDATE | RDW_ERASE);
 
-    std::string allahPath = extractPath + "/Flarial.Launcher.exe";
-    ShellExecuteA(NULL, "open", extractPath.c_str(), NULL, NULL, SW_SHOWDEFAULT);
-    ShellExecuteA(NULL, "open", allahPath.c_str(), NULL, NULL, SW_SHOWDEFAULT);
-
     // Create Start Menu shortcut
-    std::string shortcutPath;
-    PWSTR appDataPath;
-    if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &appDataPath))) {
-        std::wstring wAppDataPath(appDataPath);
-        shortcutPath = std::string(wAppDataPath.begin(), wAppDataPath.end()) + "\\Microsoft\\Windows\\Start Menu\\Flarial.Lnk";
-        CoTaskMemFree(appDataPath);
-    }
-    if (!shortcutPath.empty()) {
-        CoInitialize(NULL);
-        IShellLink* shellLink;
-        HRESULT hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&shellLink);
-        if (SUCCEEDED(hr)) {
-            shellLink->SetPath((extractPath + "\\Flarial.Launcher.exe").c_str());
-            shellLink->SetWorkingDirectory(extractPath.c_str());
-            IPersistFile* persistFile;
-            hr = shellLink->QueryInterface(IID_IPersistFile, (LPVOID*)&persistFile);
-            if (SUCCEEDED(hr)) {
-                std::wstring wideExePath1(shortcutPath.begin(), shortcutPath.end());
-                LPCOLESTR oleExePat1 = wideExePath1.c_str();
-                persistFile->Save(oleExePat1, TRUE);
-                persistFile->Release();
-            }
-            shellLink->Release();
-        }
-        CoUninitialize();
-    }
+    std::string targetFilePath = extractPath + "\\Flarial.Launcher.exe";
+    std::string shortcutFolderPath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\";
+    std::string shortcutFileName = "Flarial.lnk";
 
-    if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &appDataPath))) {
-        std::wstring wAppDataPath(appDataPath);
-        shortcutPath = std::string(wAppDataPath.begin(), wAppDataPath.end()) + "\\Microsoft\\Windows\\Start Menu\\Flarial Minimal.Lnk";
-        CoTaskMemFree(appDataPath);
-    }
-    if (!shortcutPath.empty()) {
-        CoInitialize(NULL);
-        IShellLink* shellLink;
-        HRESULT hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&shellLink);
-        if (SUCCEEDED(hr)) {
-            shellLink->SetPath((extractPath + "\\Flarial.Minimal.exe").c_str());
-            shellLink->SetWorkingDirectory(extractPath.c_str());
-            IPersistFile* persistFile;
-            hr = shellLink->QueryInterface(IID_IPersistFile, (LPVOID*)&persistFile);
-            if (SUCCEEDED(hr)) {
-                std::wstring wideExePath1(shortcutPath.begin(), shortcutPath.end());
-                LPCOLESTR oleExePat1 = wideExePath1.c_str();
-                persistFile->Save(oleExePat1, TRUE);
-                persistFile->Release();
-            }
-            shellLink->Release();
-        }
-        CoUninitialize();
-    }
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::wstring wShortcutFolderPath = converter.from_bytes(shortcutFolderPath);
+    std::wstring wShortcutFileName = converter.from_bytes(shortcutFileName);
+    WCHAR shortcutPath[MAX_PATH];
+    PathCombineW(shortcutPath, wShortcutFolderPath.c_str(), wShortcutFileName.c_str());
+
+    CoInitialize(NULL);
+    IShellLink* pShellLink;
+    CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*)&pShellLink);
+
+
+    pShellLink->SetPath(targetFilePath.c_str());
+
+    IPersistFile* pPersistFile;
+    pShellLink->QueryInterface(IID_IPersistFile, (LPVOID*)&pPersistFile);
+    pPersistFile->Save(shortcutPath, TRUE);
+
+    pPersistFile->Release();
+    pShellLink->Release();
+    CoUninitialize();
+
 }
 
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
-
-
     WNDCLASS wc = {};
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;

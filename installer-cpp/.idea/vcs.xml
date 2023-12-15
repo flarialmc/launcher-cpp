@@ -4,5 +4,6 @@
     <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
     <mapping directory="$PROJECT_DIR$/11Zip" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/11Zip/extlibs/minizip" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/11Zip/extlibs/minizip/third-party/zlib" vcs="Git" />
   </component>
 </project>
