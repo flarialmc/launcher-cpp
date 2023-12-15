@@ -152,6 +152,8 @@ void install() {
     std::cout << "Done" << std::endl;
     RedrawWindow(hwnd, &rect, NULL, RDW_INVALIDATE | RDW_ERASE);
 
+    ShellExecuteA(NULL, "open", extractPath.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+
     // Create Start Menu shortcut
     std::string targetFilePath = extractPath + "\\Flarial.Launcher.exe";
     std::string shortcutFolderPath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\";
