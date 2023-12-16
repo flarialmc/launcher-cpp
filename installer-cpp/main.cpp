@@ -221,6 +221,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     SendMessage(hwnd, WM_SETFONT, (WPARAM)hFont, TRUE);
 
+    if (wcsstr(pCmdLine, L"update") != nullptr) {
+        // If "update" is found, sleep for 1000 milliseconds (1 second)
+        Sleep(5000);
+    }
+
     std::thread statusThread([]() {
         install();
     });
