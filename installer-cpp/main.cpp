@@ -22,6 +22,8 @@ int progress = 0;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+void CreateShortcut(std::string fileName, std::string shortcutName, std::string path);
+
 class MyBindStatusCallback : public IBindStatusCallback {
 public:
     static inline const wchar_t* status;
@@ -155,9 +157,18 @@ void install() {
     ShellExecuteA(NULL, "open", extractPath.c_str(), NULL, NULL, SW_SHOWDEFAULT);
 
     // Create Start Menu shortcut
-    std::string targetFilePath = extractPath + "\\Flarial.Launcher.exe";
+    CreateShortcut("Flarial.Launcher.exe", "Flarial.lnk", extractPath);
+
+    CreateShortcut("Flarial.Minimal.exe", "Flarial Minimal.lnk", extractPath);
+
+}
+
+void CreateShortcut(std::string fileName, std::string shortcutName, std::string path) {
+
+
+    std::string targetFilePath = path + "\\" + fileName;
     std::string shortcutFolderPath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\";
-    std::string shortcutFileName = "Flarial.lnk";
+    std::string shortcutFileName = shortcutName;
 
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     std::wstring wShortcutFolderPath = converter.from_bytes(shortcutFolderPath);
@@ -179,7 +190,6 @@ void install() {
     pPersistFile->Release();
     pShellLink->Release();
     CoUninitialize();
-
 }
 
 
