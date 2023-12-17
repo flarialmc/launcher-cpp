@@ -23,6 +23,7 @@ int progress = 0;
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 void CreateShortcut(std::string fileName, std::string shortcutName, std::string path);
+std::string ConvertPWSTRToString(PWSTR wideStr);
 
 class MyBindStatusCallback : public IBindStatusCallback {
 public:
@@ -163,11 +164,33 @@ void install() {
 
 }
 
+std::string ConvertPWSTRToString(PWSTR wideStr) {
+    int size = WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, nullptr, 0, nullptr, nullptr);
+
+    if (size == 0) {
+        // Handle error
+        return "";
+    }
+
+    std::string result(size - 1, '\0');  // size includes null terminator, so subtract 1
+
+    if (WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, &result[0], size, nullptr, nullptr) == 0) {
+        // Handle error
+        return "";
+    }
+
+    return result;
+}
+
 void CreateShortcut(std::string fileName, std::string shortcutName, std::string path) {
 
 
+    PWSTR appdataPath;
+    SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, (&appdataPath));
     std::string targetFilePath = path + "\\" + fileName;
-    std::string shortcutFolderPath = "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\";
+    std::string stringAppDataPath = ConvertPWSTRToString(appdataPath);
+    std::string shortcutFolderPath = stringAppDataPath + "\\Microsoft\\Windows\\Start Menu";
+    std::cout << shortcutFolderPath << std::endl;
     std::string shortcutFileName = shortcutName;
 
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
