@@ -188,7 +188,8 @@ void CreateShortcut(std::string fileName, std::string shortcutName, std::string 
     PWSTR appdataPath;
     SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, (&appdataPath));
     std::string targetFilePath = path + "\\" + fileName;
-    std::string stringAppDataPath = ConvertPWSTRToString(appdataPath);
+    std::string pathr = ConvertPWSTRToString(appdataPath);
+    std::string stringAppDataPath = pathr;
     std::string shortcutFolderPath = stringAppDataPath + "\\Microsoft\\Windows\\Start Menu";
     std::cout << shortcutFolderPath << std::endl;
     std::string shortcutFileName = shortcutName;
