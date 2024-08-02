@@ -283,7 +283,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     std::string logoPath = folderPath + "/logo.png";
 
 
-    std::string url = "https://cdn-c6f.pages.dev/assets/logo.png";
+    std::string url = "https://raw.githubusercontent.com/flarialmc/newcdn/main/assets/logo.png";
     URLDownloadToFileA(nullptr, url.c_str(), logoPath.c_str(), 0, nullptr);
 
 
@@ -556,7 +556,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 std::string exeDirectory = exePath.parent_path().string();
                 std::string latestDllPath = fs::path(exeDirectory).append(L"latest.dll").string();
 
-                std::string url = "https://cdn-c6f.pages.dev/dll/latest.dll";
+                std::string url = "https://raw.githubusercontent.com/flarialmc/newcdn/main/dll/latest.dll";
 
                 HRESULT hr = URLDownloadToFileA(nullptr, url.c_str(), latestDllPath.c_str(), 0, nullptr);
                 if (FAILED(hr))
