@@ -441,7 +441,7 @@ void updateStatus() {
 
             currIp = ip;
         }
-    
+
 }
 
 

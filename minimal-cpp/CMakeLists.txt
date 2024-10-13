@@ -3,9 +3,11 @@ project(flarialminimal)
 
 set(CMAKE_CXX_STANDARD 23)
 
+
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+
 add_executable(flarialminimal WIN32 main.cpp)
 target_sources(flarialminimal PRIVATE icon.rc)
-
 
 target_include_directories(flarialminimal PRIVATE "${CMAKE_CURRENT_LIST_DIR}/include/")
 
