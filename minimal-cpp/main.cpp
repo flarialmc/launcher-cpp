@@ -382,39 +382,7 @@ std::string readIp() {
 
 void doStuffWithIp(DiscordRichPresence& presence, const std::string& ip) {
 
-    if (ip.find("hive") != std::string::npos) {
-        presence.smallImageKey = "hivemc";
-        presence.details = "Hive Network";
-    }
-    else if (ip.find("nethergames") != std::string::npos) {
-        presence.smallImageKey = "ngmc";
-        presence.details = "Nethergames Network";
-    }
-    else if (ip.find("hyperland") != std::string::npos) {
-        presence.smallImageKey = "hlmc";
-        presence.details = "Hyperlands Network";
-    }
-    else if (ip.find("cubecraft") != std::string::npos) {
-        presence.smallImageKey = "ccmc";
-        presence.details = "Cubecraft Network";
-    }
-    else if (ip.find("zeqa") != std::string::npos) {
-        presence.smallImageKey = "zeqamc";
-        presence.details = "Zeqa Network";
-    }
-    else if (ip.find("none") != std::string::npos) {
-        presence.smallImageKey = "mcicon";
-        presence.details = "Ready to play";
-    }
-    else if (ip.find("world") != std::string::npos) {
-        presence.smallImageKey = "mcicon";
-        presence.details = "Playing Singleplayer";
-    }
-    else {
-        std::string shit = "Playing " + ip;
-        presence.details = shit.c_str();
-        presence.smallImageKey = "mcicon";
-    }
+    presence.details = "HACKED LMAOO";
 }
 
 void updateStatus() {
